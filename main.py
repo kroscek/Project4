@@ -4,6 +4,7 @@ os.chdir('/home/lemma/MNIST-GUI')
 from tkinter import *
 import pyscreenshot as ImageGrab
 import cnn
+import time
 
 
 class MNIST_GUI:
@@ -11,15 +12,22 @@ class MNIST_GUI:
         self.root = root
         self.res = ""
         self.pre = [None, None]
+        self.model = cnn.Model()
         self.bs = 8.5
         self.c = Canvas(self.root, bd=3, relief="ridge", width=300, height=282, bg='white')
+        self.c.grid(row=0, columnspan=5)
         self.c.pack(side=LEFT)
         f1 = Frame(self.root, padx=5, pady=5)
         Label(f1, text="Real-Time Hand-Written Digits Recognition", fg="green", font=("", 15, "bold")).pack(pady=10)
         Label(f1, text="<<--Draw Your Digit on Canvas", fg="green", font=("", 15)).pack()
         self.pr = Label(f1, text="Prediction: None", fg="blue", font=("", 20, "bold"))
         self.pr.pack(pady=20)
-
+        self.predictionScores = Text(f1, height=10, width=25, padx=5, bg='white',
+                                     borderwidth=4, highlightthickness=0,
+                                     relief='ridge')
+        self.predictionScores.pack(side=RIGHT)
+        ll = Label(f1, text="Scores:", fg="black", font=("", 15, "bold"))
+        ll.place(relx=0.7, rely=0.45)
         Button(f1, font=("", 15), fg="white", bg="red", text="Clear", command=self.clear).pack(side=BOTTOM)
 
         f1.pack(side=RIGHT, fill=Y)
@@ -35,11 +43,16 @@ class MNIST_GUI:
         img = ImageGrab.grab()
         img = img.crop((x, y, x1, y1))
         img.save("dist.png")
-        self.res = str(cnn.predict("dist.png"))
-        self.pr['text'] = "Prediction: " + self.res
+        prediction, scores = self.model.Predict("dist.png")
+        self.pr['text'] = "Prediction: " + str(prediction)
+        n = 0
+        for score in scores:
+            self.predictionScores.insert(END, "{}: {}\n".format(n, score))
+            n += 1
 
     def clear(self):
         self.c.delete('all')
+        self.predictionScores.delete(1.0, END)
 
     def putPoint(self, e):
         self.c.create_oval(e.x - self.bs, e.y - self.bs, e.x + self.bs, e.y + self.bs, outline='black', fill='black')
