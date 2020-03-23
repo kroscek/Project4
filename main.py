@@ -1,4 +1,5 @@
 import os
+
 os.chdir('/home/lemma/MNIST-GUI')
 from tkinter import *
 import pyscreenshot as ImageGrab
@@ -15,8 +16,8 @@ class MNIST_GUI:
         self.c.pack(side=LEFT)
         f1 = Frame(self.root, padx=5, pady=5)
         Label(f1, text="Real-Time Hand-Written Digits Recognition", fg="green", font=("", 15, "bold")).pack(pady=10)
-        Label(f1, text="<<--Draw Digit On The Canvas", fg="green", font=("", 15)).pack()
-        self.pr = Label(f1, text="Digit: None", fg="blue", font=("", 20, "bold"))
+        Label(f1, text="<<--Draw Your Digit on Canvas", fg="green", font=("", 15)).pack()
+        self.pr = Label(f1, text="Prediction: None", fg="blue", font=("", 20, "bold"))
         self.pr.pack(pady=20)
 
         Button(f1, font=("", 15), fg="white", bg="red", text="Clear", command=self.clear).pack(side=BOTTOM)
@@ -24,7 +25,7 @@ class MNIST_GUI:
         f1.pack(side=RIGHT, fill=Y)
         self.c.bind("<Button-1>", self.putPoint)
         self.c.bind("<ButtonRelease-1>", self.result)
-        self.c.bind("<B1-Motion>", self.paint)  # to draw line
+        self.c.bind("<B1-Motion>", self.paint)
 
     def result(self, e):
         x = self.root.winfo_rootx() + self.c.winfo_x()
@@ -35,7 +36,7 @@ class MNIST_GUI:
         img = img.crop((x, y, x1, y1))
         img.save("dist.png")
         self.res = str(cnn.predict("dist.png"))
-        self.pr['text'] = "Digit: " + self.res
+        self.pr['text'] = "Prediction: " + self.res
 
     def clear(self):
         self.c.delete('all')
@@ -51,9 +52,9 @@ class MNIST_GUI:
         self.pre = [e.x, e.y]
 
 
-if __name__ == "__MNIST_GUI__":
+if __name__ == "__main__":
     root = Tk()
     MNIST_GUI(root)
-    root.title('Hand-Written Digit Recognition')
+    root.title('Real-Time Hand-Written Digit Recognition')
     root.resizable(0, 0)
-    root.MNIST_GUIloop()
+    root.mainloop()
